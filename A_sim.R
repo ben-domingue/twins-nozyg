@@ -27,3 +27,4 @@ plot(density(del[df$mz==0]),col="blue")
 den<-density(del[df$mz==1])
 lines(den$x,den$y,col='red')
 
+    
