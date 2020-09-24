@@ -136,3 +136,20 @@ legend("topleft",bty='n',"vC")
 legend("bottomright",bty='n',paste("MSE",round(mse(tab2[,1],tab2[,2]),4)))
 plot(tab2[,1],tab2[,3],xlab="True",ylab="wo/ zyg",xlim=c(0,1),ylim=c(-.5,1.5),pch=19,col='blue')
 legend("bottomright",bty='n',paste("MSE",round(mse(tab2[,1],tab2[,3]),4)))
+
+
+h2<-function(x,ve=1) {
+    va<-x[[1]]
+    vc<-x[[2]]
+    h2.true<-va/(va+vc+ve)
+    z<-x[[3]]
+    h2.w<-z[1]/sum(z)
+    z<-x[[4]]
+    h2.wo<-z[1]/sum(z)
+    c(h2.true,h2.w,h2.wo)
+}
+h2<-lapply(out,h2)
+h2<-do.call("rbind",h2)
+par(mfrow=c(1,2),mgp=c(2,1,0),mar=c(3,3,1,1),oma=rep(.5,4))
+plot(h2[,1],h2[,2],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, w/ zyg")
+plot(h2[,1],h2[,3],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, wo/ zyg")
