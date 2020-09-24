@@ -58,6 +58,13 @@ h2(x,'haz_1','haz_2')
 
 herit.ht<-herit.haz<-list()
 for (rho in seq(.35,.65,by=.01)) {
+    print(rho)
     herit.ht[[as.character(rho)]]<-h2(x,'height_1','height_2',rho=rho)
     herit.haz[[as.character(rho)]]<-h2(x,'haz_1','haz_2',rho=rho)
 }    
+
+par(mgp=c(2,1,0))
+plot(NULL,xlim=c(.35,.55),ylim=c(0,.6),xlab="rho",ylab="h2")
+lines(as.numeric(names(herit.ht)),unlist(herit.ht),col='red',lwd=2)
+lines(as.numeric(names(herit.haz)),unlist(herit.haz),col='blue',lwd=2)
+legend("topleft",bty='n',fill=c("red","blue"),c("height","haz"))
