@@ -1,7 +1,3 @@
-x<-read.csv("/home/bd/Dropbox/projects/twins_nozyg/data/twins_India.csv")
-x$diff.sex<- ifelse(x$female_1!=x$female_2,1,0)
-
-
 ##no zyg
 ll.no<-function(varcomps,df) {
     like.no<-function(varcomps,y1,y2,mz) { #see expressions following eqn 2 https://www.cambridge.org/core/services/aop-cambridge-core/content/view/72C025E382D45CBC9A1DECBD00F41151/S136905230000372Xa.pdf/finite_mixture_distribution_model_for_data_collected_from_twins.pdf
@@ -29,6 +25,7 @@ ll.no<-function(varcomps,df) {
         s2<-apply(x,1,get.s2)
         s1*s2
     }
+    df<-df[rowSums(is.na(df))==0,]
     ##
     ds<-df[df$diff.sex==1,]
     ss<-df[df$diff.sex==0,]
@@ -41,7 +38,8 @@ ll.no<-function(varcomps,df) {
     ##
     -1*(sum(log(p*l1+(1-p)*l2))+sum(log(l2.ds)))
 }
-h2<-function(df,nm1,nm2,rho=.5) {
+
+h2<-function(df,nm1,nm2,rho=.5,printz=FALSE) {
     df[[nm1]]->df$y1
     df[[nm2]]->df$y2
     df<-df[,c("y1","y2","diff.sex")]
@@ -51,20 +49,17 @@ h2<-function(df,nm1,nm2,rho=.5) {
     v<-var(c(df$y1,df$y2))
     est2<-optim(c(v/4,v/4,v/2),ll.no,df=df)
     z<-est2$par
-    z[1]/(sum(z))
+    if (printz) return(c(h2=z[1]/(sum(z)),z)) else return(z[1]/(sum(z)))
 }
-h2(x,'height_1','height_2')
-h2(x,'haz_1','haz_2')
 
-herit.ht<-herit.haz<-list()
-for (rho in seq(.35,.65,by=.01)) {
-    print(rho)
-    herit.ht[[as.character(rho)]]<-h2(x,'height_1','height_2',rho=rho)
-    herit.haz[[as.character(rho)]]<-h2(x,'haz_1','haz_2',rho=rho)
-}    
-
-par(mgp=c(2,1,0))
-plot(NULL,xlim=c(.35,.55),ylim=c(0,.6),xlab="rho",ylab="h2")
-lines(as.numeric(names(herit.ht)),unlist(herit.ht),col='red',lwd=2)
-lines(as.numeric(names(herit.haz)),unlist(herit.haz),col='blue',lwd=2)
-legend("topleft",bty='n',fill=c("red","blue"),c("height","haz"))
+residualize<-function(y,x) { #y is a Nx2 block for dyads, x is a Nxk block of k dyad-level covariates
+    nr<-nrow(y)
+    yy<-c(y[,1],y[,2])
+    xx<-rbind(x,x)
+    tmp<-data.frame(y=yy,xx)
+    1:nrow(tmp)->rownames(tmp)
+    m<-lm(tmp)
+    rr<-rep(NA,length(yy))
+    rr[as.numeric(names(resid(m)))]<-resid(m)
+    matrix(rr,byrow=FALSE,ncol=2,nrow=nr)
+}
