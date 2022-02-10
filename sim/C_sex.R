@@ -119,37 +119,48 @@ out<-mclapply(v,parfun,mc.cores=30)
 save(out,file="out.Rdata")
 
 
-
+pdf("/tmp/fig1.pdf",width=5,height=5)
 mse<-function(x1,x2) mean((x1-x2)^2)
+bias<-function(x1,x2) mean(x1)-mean(x2)
 f<-function(x) c(x[[1]],x[[3]][1],x[[4]][1])
 tab1<-t(sapply(out,f))
 f<-function(x) c(x[[2]],x[[3]][2],x[[4]][2])
 tab2<-t(sapply(out,f))
 par(mfrow=c(2,2),mgp=c(2,1,0),mar=c(3,3,1,1),oma=rep(.5,4))
 plot(tab1[,1],tab1[,2],xlab="True",ylab="w/ zyg",xlim=c(0,1),ylim=c(-.5,1.5),pch=19,col='blue')
+abline(0,1,col='black',lwd=2)
 legend("topleft",bty='n',"vA")
-legend("bottomright",bty='n',paste("MSE",round(mse(tab1[,1],tab1[,2]),4)))
+txt<-c(paste("Bias",round(bias(tab1[,1],tab1[,2]),4)),paste("MSE",round(mse(tab1[,1],tab1[,2]),4)))
+legend("bottomright",bty='n',legend=txt)
 plot(tab1[,1],tab1[,3],xlab="True",ylab="wo/ zyg",xlim=c(0,1),ylim=c(-.5,1.5),pch=19,col='blue')
-legend("bottomright",bty='n',paste("MSE",round(mse(tab1[,1],tab1[,3]),4)))
+abline(0,1,col='black',lwd=2)
+txt<-c(paste("Bias",round(bias(tab1[,1],tab1[,3]),4)),paste("MSE",round(mse(tab1[,1],tab1[,3]),4)))
+legend("bottomright",bty='n',txt)
 plot(tab2[,1],tab2[,2],xlab="True",ylab="w/ zyg",xlim=c(0,1),ylim=c(-.5,1.5),pch=19,col='blue')
+abline(0,1,col='black',lwd=2)
 legend("topleft",bty='n',"vC")
-legend("bottomright",bty='n',paste("MSE",round(mse(tab2[,1],tab2[,2]),4)))
+txt<-c(paste("Bias",round(bias(tab2[,1],tab2[,2]),4)),paste("MSE",round(mse(tab2[,1],tab2[,2]),4)))
+legend("bottomright",bty='n',txt)
 plot(tab2[,1],tab2[,3],xlab="True",ylab="wo/ zyg",xlim=c(0,1),ylim=c(-.5,1.5),pch=19,col='blue')
-legend("bottomright",bty='n',paste("MSE",round(mse(tab2[,1],tab2[,3]),4)))
+abline(0,1,col='black',lwd=2)
+txt<-c(paste("Bias",round(bias(tab2[,1],tab2[,3]),4)),paste("MSE",round(mse(tab2[,1],tab2[,3]),4)))
+legend("bottomright",bty='n',txt)
+dev.off()
 
 
-h2<-function(x,ve=1) {
-    va<-x[[1]]
-    vc<-x[[2]]
-    h2.true<-va/(va+vc+ve)
-    z<-x[[3]]
-    h2.w<-z[1]/sum(z)
-    z<-x[[4]]
-    h2.wo<-z[1]/sum(z)
-    c(h2.true,h2.w,h2.wo)
-}
-h2<-lapply(out,h2)
-h2<-do.call("rbind",h2)
-par(mfrow=c(1,2),mgp=c(2,1,0),mar=c(3,3,1,1),oma=rep(.5,4))
-plot(h2[,1],h2[,2],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, w/ zyg")
-plot(h2[,1],h2[,3],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, wo/ zyg")
+
+## h2<-function(x,ve=1) {
+##     va<-x[[1]]
+##     vc<-x[[2]]
+##     h2.true<-va/(va+vc+ve)
+##     z<-x[[3]]
+##     h2.w<-z[1]/sum(z)
+##     z<-x[[4]]
+##     h2.wo<-z[1]/sum(z)
+##     c(h2.true,h2.w,h2.wo)
+## }
+## h2<-lapply(out,h2)
+## h2<-do.call("rbind",h2)
+## par(mfrow=c(1,2),mgp=c(2,1,0),mar=c(3,3,1,1),oma=rep(.5,4))
+## plot(h2[,1],h2[,2],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, w/ zyg")
+## plot(h2[,1],h2[,3],pch=19,col='red',ylim=c(-.1,0.7),xlab="true h2",ylab="h2, wo/ zyg")
